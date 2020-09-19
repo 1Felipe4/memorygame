@@ -1,0 +1,16 @@
+.card:hover{
+	outline: 1px solid orange;
+}
+
+.card>img{
+		opacity: 0;
+}
+
+.flipped>img{
+	opacity: 1;
+}
+
+#game{
+	width: 60%;
+	margin: 0 auto;
+}
