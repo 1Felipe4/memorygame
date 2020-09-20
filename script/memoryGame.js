@@ -77,6 +77,7 @@ function game(rows = 3, cols = 4){
 	this.timer = 0;
 	this.maxMatches;
 	this.scorebox = new scorebox(this);
+	this.state = "prematch";
 
 	this.render = function (){
 		for(let i = 0; i < this.rows; i++){
@@ -91,7 +92,10 @@ function game(rows = 3, cols = 4){
 
 	this.select = function(card){
 		let message = "";
-
+		if(this.state == "prematch"){
+			this.scorebox.startTimer();
+			this.state = "started";
+		}
 
 
 		if(!card.matched || !card.selected){
@@ -126,6 +130,10 @@ function game(rows = 3, cols = 4){
 			this.cardsSelected.shift();
 		}
 
+		if(this.matches == this.maxMatches){
+			this.scorebox.stopTimer();
+			this.state = "won";
+		}
 		this.render();
 	
 	} 
@@ -296,6 +304,8 @@ function scoreboard(){
 		games.push(game);
 		let gamelist = this.gamelist;
 		let score = game.scorebox;
+
+
 		while(games.length> 10){
 			games.pop();
 		}
@@ -319,30 +329,53 @@ function scorebox(game){
 	this.box = document.createElement("div");
 	this.matches = document.createElement("h2");
 	this.guesses = document.createElement("h2");
-	this.timer = document.createElement("h3");
+	this.time = document.createElement("h3");
+	this.timer = null;
 	this.game = game;
 
 	this.init= function (){
 		let matches = this.matches;
 		let guesses = this.guesses;
-		let timer = this.timer
+		let time = this.time;
 		let box = this.box;
 		let game = this.game;
 		box.innerHTML = "";
 		matches.innerHTML = game.matches + "/" + game.maxMatches + "  Matches"; 
 		guesses.innerHTML = game.guesses + " Guesses";
+		this.time.innerHTML = 0 + " Seconds";
 		box.appendChild(guesses);
 		box.appendChild(matches);
-		box.appendChild(timer);
+		box.appendChild(time);
 		};
 
 	this.render	= function (){
 		let matches = this.matches;
 		let guesses = this.guesses;
-
 		matches.innerHTML = game.matches + "/" + game.maxMatches + "  Matches"; 
 		guesses.innerHTML = game.guesses + " Guesses";
+		
 	}
+
+	this.startTimer = function(){
+		let start = new Date()
+		this.timer = setInterval(function(start, time){ 
+			let now = new Date().getTime();
+
+			let secs =  (now - start) / 1000;
+			secs = parseInt(secs)
+			//let milli =  (now - start) % 1000;
+			time.innerHTML = secs + " Seconds";
+
+		 }, 500, start.getTime(), this.time)
+	}
+
+	this.stopTimer = function(){
+		clearInterval(this.timer);
+	}
+
+
+
+
  this.init();
 
 }
@@ -364,6 +397,7 @@ function shuffle(arr){
 
 var sb = new scoreboard();
 	sb.init();
+
 
 function newGame(){
 	var newG = new game();

@@ -17,7 +17,7 @@
 
 main {
 	display: grid;
-	grid-template-columns: 1fr 2fr 1fr;
+	grid-template-columns: 10%  66% 15%;
 	grid-column-gap: 1em;
 }
 
