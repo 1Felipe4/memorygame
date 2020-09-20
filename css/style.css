@@ -20,3 +20,7 @@ main {
 	grid-template-columns: 1fr 2fr 1fr;
 	grid-column-gap: 1em;
 }
+
+h2{
+	font-size: 1.5em;
+}
