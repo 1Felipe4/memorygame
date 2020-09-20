@@ -262,7 +262,7 @@ function scoreboard(){
 		let header = document.createElement("h1");
 		header.style.margin = "0 auto"
 		header.style.gridArea = "header";
-		header.innerText = "Scoreboard";
+		header.innerHTML = "<u>Scoreboard</u>";
 
 		let fastest = this.fastest;
 		fastest.style.gridArea = "fastest";
@@ -299,9 +299,9 @@ function scoreboard(){
 		while(games.length> 10){
 			games.pop();
 		}
-		let firstChild = games.firstChild;
-		console.log(score.box);
-		if(!firstChild){
+		let firstChild = gamelist.firstChild;
+		console.log(firstChild);
+		if(firstChild){
 			gamelist.insertBefore(score.box, firstChild);
 		}else{
 			gamelist.appendChild(score.box)
