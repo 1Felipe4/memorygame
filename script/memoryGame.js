@@ -327,9 +327,9 @@ function scoreboard(){
 
 function scorebox(game){
 	this.box = document.createElement("div");
-	this.matches = document.createElement("h2");
-	this.guesses = document.createElement("h2");
-	this.time = document.createElement("h3");
+	this.matches = document.createElement("h5");
+	this.guesses = document.createElement("h5");
+	this.time = document.createElement("h6");
 	this.timer = null;
 	this.game = game;
 
@@ -339,6 +339,9 @@ function scorebox(game){
 		let time = this.time;
 		let box = this.box;
 		let game = this.game;
+		box.style.border = "1px solid cyan";
+		box.style.margin = "1em 0";
+		box.style.padding = "5px";
 		box.innerHTML = "";
 		matches.innerHTML = game.matches + "/" + game.maxMatches + "  Matches"; 
 		guesses.innerHTML = game.guesses + " Guesses";
