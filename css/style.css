@@ -11,6 +11,12 @@
 }
 
 #game{
-	width: 60%;
+	width: 100%;
 	margin: 0 auto;
+}
+
+main {
+	display: grid;
+	grid-template-columns: 1fr 2fr 1fr;
+	grid-column-gap: 1em;
 }

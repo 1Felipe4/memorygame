@@ -13,19 +13,18 @@ function card(name, pos = null){
 		element.setAttribute("class", "card");
 		element.style.backgroundColor = "cyan";
 		element.style.margin = "2px";
+		element.style.padding = "5px";
 		let img = this.img;
 		img.setAttribute("src", "images/"+ name + ".png");
 				
 		img.style.width = "80%";
-		element.appendChild(img);
-		console.log(element);	
+		element.appendChild(img);	
 		element.style.textAlign = "center";
 	}
 
 	this.render = function(){
 		let element = this.element
 		let img = this.img;
-		console.log(this.name + "rendered");
 		if(this.flipped){
 				img.style.opacity = "1.0";
 		}else{
@@ -34,11 +33,7 @@ function card(name, pos = null){
 
 		if(this.selected){
 			element.style.outline = "1px solid green";
-		}else{
-			element.style.outline = "";
-		}
-
-		if(this.matched){
+		}else if(this.matched){
 			element.style.outline = "1px solid gold";
 		}else{
 			element.style.outline = "";
@@ -72,13 +67,16 @@ function card(name, pos = null){
 
 }
 
-function gameGrid(rows = 3, cols = 4){
+function game(rows = 3, cols = 4){
 	this.rows = rows;
 	this.cols = cols;
 	this.cards = [];
 	this.cardsSelected = [];
-	
-	
+	this.guesses = 0;
+	this.matches = 0;
+	this.timer = 0;
+	this.maxMatches;
+	this.scorebox = new scorebox(this);
 
 	this.render = function (){
 		for(let i = 0; i < this.rows; i++){
@@ -87,12 +85,16 @@ function gameGrid(rows = 3, cols = 4){
 				card.render();
 			}
 		}
+		this.scorebox.render();
+
 	}
 
 	this.select = function(card){
 		let message = "";
 
-		if(!card.matched && !card.selected){
+
+
+		if(!card.matched || !card.selected){
 			this.cardsSelected.push(card);
 			message += card.name + " Was Selected\n";
 			card.selected = true;
@@ -100,10 +102,12 @@ function gameGrid(rows = 3, cols = 4){
 		}
 
 		if(this.cardsSelected.length == 2){
+			this.guesses++;
 			let c1 = this.cardsSelected[0];
 			let c2 = this.cardsSelected[1];
+
 			if(c1.testMatch(c2)){
-				alert("Match");
+				this.matches++;
 			}
 		}
 
@@ -123,7 +127,7 @@ function gameGrid(rows = 3, cols = 4){
 		}
 
 		this.render();
-		console.log(message);
+	
 	} 
 
 	this.init = function(){
@@ -141,15 +145,15 @@ function gameGrid(rows = 3, cols = 4){
 				i = grid.rows * grid.cols;
 			}
 
-			console.log(i)
 			return i;
 		}
+ 
 
 
-
-		console.log(cardMax(this))
 		this.cardMax = cardMax(this);
-		while(names.length < this.cardMax/2){
+		this.maxMatches = this.cardMax/2;
+		console.log(this.maxMatches);
+		while(names.length < this.maxMatches){
 			let randPos = Math.floor(Math.random() * allNames.length);
 			if(!names.includes(allNames[randPos])){
 				names.push(allNames[randPos]);
@@ -179,12 +183,9 @@ function gameGrid(rows = 3, cols = 4){
 			grid.cards = shuffle(grid.cards);
 			for (let i = 0; i < grid.table.length; i++) {
 				for (let j = 0; j < grid.cols; j++) {
-					
-					console.log(grid.table[i]);
-
 
 					let rand = Math.floor(Math.random() *grid.cards.length);
-					console.log(i + " " + j + " " + rand);
+
 					let card = grid.cards.pop();
 					card.init();
 					card.pos(i, j);
@@ -197,8 +198,6 @@ function gameGrid(rows = 3, cols = 4){
 
 		}
 		setTable(this);
-		// console.log(this.cards);
-		// console.log(this.table);
 		
 		document.getElementById("game").innerHTML = "";
 		for(let i = 0; i < this.rows; i++){
@@ -214,16 +213,139 @@ function gameGrid(rows = 3, cols = 4){
 
 
 			}
+			this.scorebox.render();
+
+
+
+			
+
 			section.style.gridTemplateColumns = gridTemplate;
 			document.getElementById("game").appendChild(section);
 		}
+
+
+
 	}
+
+			// let scores = document.createElement("div");
+			// let guesses = document.createElement("h2");
+			// guesses.innerHTML = this.guesses;
+			// scores.appendChild(guesses);
+			// let timer = document.createElement("h2");
+			// document.getElementById("rightSide").appendChild(scores);
+
 
 
 	this.init();
 	
+	
+	
 }
- 
+function scoreboard(){
+	this.games = [];
+	this.matches;
+	this.guesses;
+	this.timer;
+
+	this.gamelist = document.createElement("div");
+	this.fastest = document.createElement("div");
+	this.leastGuesses = document.createElement("div");
+
+	this.init = function (){
+		let div = document.createElement("div");
+		div.style.display = "grid";
+		div.style.gridTemplateColumns=  "40% 70%";
+		div.style.gridTemplatRows = "auto 40% 40%";
+		div.style.gridTemplateAreas = '"header header" "games leastGuesses"  "games fastest"';
+
+
+		let header = document.createElement("h1");
+		header.style.margin = "0 auto"
+		header.style.gridArea = "header";
+		header.innerText = "Scoreboard";
+
+		let fastest = this.fastest;
+		fastest.style.gridArea = "fastest";
+
+		let leastGuesses = this.leastGuesses;
+		leastGuesses.style.gridArea = "leastGuesses";
+
+		let games = this.gamelist;
+		games.style.gridArea = "games";
+
+		div.appendChild(header);
+		div.appendChild(games);
+		div.appendChild(leastGuesses);
+		div.appendChild(fastest);
+		
+		let right = document.getElementById("rightSide");
+		right.innerHTML = "";
+		right.appendChild(div); 
+
+	this.render = function(){
+		let game = games[0];
+		if(!game){
+			return;
+		}
+		this.matches.innerHTML = game.matches + "/" + game.maxMatches + "  Matches"; 
+		this.guesses.innerHTML = game.guesses + " Guesses";
+	}
+
+	this.addGame = function (game){
+		let games = this.games;
+		games.push(game);
+		let gamelist = this.gamelist;
+		let score = game.scorebox;
+		while(games.length> 10){
+			games.pop();
+		}
+		let firstChild = games.firstChild;
+		console.log(score.box);
+		if(!firstChild){
+			gamelist.insertBefore(score.box, firstChild);
+		}else{
+			gamelist.appendChild(score.box)
+		}
+		
+		this.render();
+	}
+
+	}
+
+} 
+
+
+function scorebox(game){
+	this.box = document.createElement("div");
+	this.matches = document.createElement("h2");
+	this.guesses = document.createElement("h2");
+	this.timer = document.createElement("h3");
+	this.game = game;
+
+	this.init= function (){
+		let matches = this.matches;
+		let guesses = this.guesses;
+		let timer = this.timer
+		let box = this.box;
+		let game = this.game;
+		box.innerHTML = "";
+		matches.innerHTML = game.matches + "/" + game.maxMatches + "  Matches"; 
+		guesses.innerHTML = game.guesses + " Guesses";
+		box.appendChild(guesses);
+		box.appendChild(matches);
+		box.appendChild(timer);
+		};
+
+	this.render	= function (){
+		let matches = this.matches;
+		let guesses = this.guesses;
+
+		matches.innerHTML = game.matches + "/" + game.maxMatches + "  Matches"; 
+		guesses.innerHTML = game.guesses + " Guesses";
+	}
+ this.init();
+
+}
 
 
 
@@ -239,4 +361,25 @@ function shuffle(arr){
 		return arr;
 }
 
-var currGrid;
+
+var sb = new scoreboard();
+	sb.init();
+
+function newGame(){
+	var newG = new game();
+	sb.addGame(newG)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

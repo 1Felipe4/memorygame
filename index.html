@@ -8,13 +8,22 @@
 </head>
 <body>
 	
-	<nav>
-		<button id="newGame" onclick="currGrid = new gameGrid">New Game</button>
+	
+	<main>
+		<nav>
+		<button id="newGame" onclick="newGame()">New Game</button>
 	</nav>
-	<section id="game">
+		<section id="game">
 		
 	</section>
+
+	<aside id= "rightSide">
+		
+	</aside>
+
+	</main>
 	
-	<script src="script/memoryGame.js" onload="currGrid = new gameGrid"></script>
+	
+	<script src="script/memoryGame.js" onload="newGame()"></script>
 </body>
 </html>
