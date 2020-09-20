@@ -340,7 +340,6 @@ function scorebox(game){
 		let box = this.box;
 		let game = this.game;
 		box.style.border = "1px solid cyan";
-		box.style.margin = "1em 0";
 		box.style.padding = "5px";
 		box.innerHTML = "";
 		matches.innerHTML = game.matches + "/" + game.maxMatches + "  Matches"; 
