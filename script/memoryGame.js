@@ -262,7 +262,7 @@ function scoreboard(){
 	this.init = function (){
 		let div = document.createElement("div");
 		div.style.display = "grid";
-		div.style.gridTemplateColumns=  "40% 70%";
+		div.style.gridTemplateColumns=  "50% 50%";
 		div.style.gridTemplatRows = "auto 40% 40%";
 		div.style.gridTemplateAreas = '"header header" "games leastGuesses"  "games fastest"';
 
