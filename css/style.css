@@ -24,3 +24,7 @@ main {
 h2{
 	font-size: 2rem;
 }
+
+label{
+	display: block;
+}

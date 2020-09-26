@@ -224,6 +224,12 @@ function game(matchMultiplier = 4, maxMatches = 6){
 		let cardMax = function (grid){
 
 			let maxMax = allNames.length * grid.matchMultiplier;
+			
+			while(grid.rows*2 < grid.cols){
+				grid.rows++;
+				grid.cols--;
+			}
+
 			let i = grid.rows * grid.cols;
 
 
@@ -359,7 +365,7 @@ function scoreboard(){
 		let div = document.createElement("div");
 		div.style.display = "grid";
 		div.style.gridTemplateColumns=  "50% 50%";
-		div.style.gridTemplatRows = "auto 40% 40%";
+		div.style.gridTemplateRows = "auto 40% 40%";
 		div.style.gridTemplateAreas = '"header header" "games leastGuesses"  "games fastest"';
 
 
@@ -422,14 +428,143 @@ function scoreboard(){
 
 } 
 
+function gameMode(name, matchMultiplier, maxMatches){
+	this.name = name;
+	this.matchMultiplier = matchMultiplier;
+	this.maxMatches = maxMatches;
+
+	this.equals = function(matchMultiplier, maxMatches){
+		if(this.matchMultiplier == matchMultiplier && this.maxMatches == maxMatches){
+			return true;
+		}
+		return false
+	}
+}
+
 function gameSettingsBar(){
-	this.button = document.createElement("button");
+	this.mode = document.createElement("button");
 	this.matchMultiplier = document.createElement("input");
-	this.matchMax = document.createElement("input");
+	this.maxMatches = document.createElement("input");
+	this.gameModes = [];
+	this.modeI = 1;
 	
 	this.init = function (){
+		this.gameModes["Easy"] = new gameMode("Easy", 2, 6);
+		this.gameModes["Medium"] = new gameMode("Medium", 3, 6);
+		this.gameModes["Tuff"] = new gameMode("Tuff", 4, 6);
+		this.gameModes["Insane"] = new gameMode("Insane", 5, 6);
+		this.gameModes["Custom"] = new gameMode("Custom", 2, 8);
+
+		this.modeKeys = Object.keys(this.gameModes);
+		console.log(this.modeKeys);
+		let div = document.createElement("div");
 		
+
+		let mode = this.mode;
+		let settings = this;
+		mode.addEventListener("click", () => settings.nextMode())
+
+		let matchMultiplier = this.matchMultiplier;
+		let maxMatches = this.maxMatches;
+
+		matchMultiplier.addEventListener("change", () => settings.changeMode())
+		maxMatches.addEventListener("change", () => settings.changeMode())
+		let maxMatchesLbl = document.createElement("label");
+		maxMatchesLbl.innerHTML = "Matches to Win: ";
+		maxMatchesLbl.style.gridArea = "maxMatchLbl";
+
+		let matchMulLbl = document.createElement("label");
+		matchMulLbl.innerHTML = "Cards per Match: ";
+		matchMulLbl.style.gridArea = "matchMulLbl";
+
+
+		maxMatches.setAttribute("type", "number");
+		maxMatches.setAttribute("min", "2");
+		maxMatches.style.gridArea = "maxMatchInput";
+
+
+
+		matchMultiplier.setAttribute("type", "number");
+		matchMultiplier.setAttribute("min", "2");
+		matchMultiplier.style.gridArea = "matchMulInput";
+
+		mode.style.gridArea = "modeBtn";
+
+		let modeLbl = document.createElement("label");
+		modeLbl.innerHTML = "Mode: ";
+		modeLbl.style.gridArea = "modeLbl";
+
+		let newGameBtn = document.createElement("button");
+		newGameBtn.innerHTML = "New Game";
+		newGameBtn.addEventListener("click", () => newGame(matchMultiplier.value, maxMatches.value));
+
+		let header = document.createElement("h4");
+		header.innerHTML = "Game Options";
+		header.style.gridArea = "header";
+
+		div.appendChild(header);
+		div.appendChild(modeLbl);
+		div.appendChild(mode);
+		div.appendChild(maxMatchesLbl);
+		div.appendChild(maxMatches);
+		div.appendChild(matchMulLbl);
+		div.appendChild(matchMultiplier);
+		div.appendChild(newGameBtn);
+
+		document.getElementById("settings").appendChild(div);
+		this.render();
+
 	}
+
+	this.render = function (){
+		
+		let currMode = this.gameModes[this.modeKeys[this.modeI]];
+		let modeBtn = this.mode;
+		let matchMultiplier = this.matchMultiplier;
+		let maxMatches = this.maxMatches; 
+
+		modeBtn.innerHTML = currMode.name;
+		matchMultiplier.value = currMode.matchMultiplier;
+		maxMatches.value = currMode.maxMatches;
+
+
+
+	}
+
+	this.nextMode = function(){
+		this.modeI++;
+		if(this.modeI >= this.modeKeys.length){
+			this.modeI = 0;
+		}
+
+		this.render();
+	}
+
+	this.changeMode = function(){
+		let matchMultiplier = this.matchMultiplier;
+		let maxMatches = this.maxMatches;
+
+		for (let i = 0; i < this.modeKeys.length; i++) {
+			const key = this.modeKeys[i];
+			if(this.gameModes[key].equals(matchMultiplier.value, maxMatches.value)){
+				this.modeI = i;
+				break;
+			}
+			this.modeI = i;
+
+		}
+		let key = this.modeKeys[this.modeI];
+		if(key == "Custom"){
+			this.gameModes[key].matchMultiplier = matchMultiplier.value;
+			this.gameModes[key].maxMatches = maxMatches.value;
+		}
+
+		this.render();
+
+
+	}
+
+
 
 }
 
@@ -505,17 +640,27 @@ function shuffle(arr){
 		return arr;
 }
 
-
 var sb = new scoreboard();
-	sb.init();
-
-
-function newGame(){
-	var newG = new game();
+function newGame(matchMultiplier = 4, maxMatches = 6){
+	var newG = new game(matchMultiplier, maxMatches);
 	
 	sb.addGame(newG)
 	return newG;
 }
+
+
+function init(){
+	
+	var gameSettings = new gameSettingsBar();
+	sb.init();
+	gameSettings.init();
+	newGame();
+
+}
+
+
+	
+
 
 
 
