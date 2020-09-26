@@ -17,10 +17,10 @@
 
 main {
 	display: grid;
-	grid-template-columns: 10%  66% auto;
-	grid-column-gap: 3%;
+	grid-template-columns: 10vw  66vw auto;
+	grid-column-gap: 3vw;
 }
 
 h2{
-	font-size: 1.2em;
+	font-size: 2rem;
 }

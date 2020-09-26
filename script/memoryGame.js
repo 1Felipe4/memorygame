@@ -2,12 +2,12 @@ var allNames = ["bear", "capuchin", "crocodile", "dolphin", "elephant", "giraffe
 
 function card(name, pos = null){
 	this.name = name.charAt(0).toUpperCase() + name.toLowerCase().substring(1);
-	this.img = document.createElement("img");;
+	this.img = document.createElement("img");
+	this.state = "Turned Down";
 	this.flipped = false;
 	this.matched = false;
 	this.selected = false;
 	this.element = document.createElement("div");
-
 	this.init = function(){
 		let element = this.element
 		element.setAttribute("class", "card");
@@ -19,22 +19,29 @@ function card(name, pos = null){
 				
 		img.style.width = "80%";
 		element.appendChild(img);	
-		element.style.textAlign = "center";
+		element.style.textAlign = "ce nter";
 	}
 
 	this.render = function(){
 		let element = this.element
 		let img = this.img;
+		console.log(this.matched + " " + this.selected);
+		if((this.matched || this.selected)){
+			this.flipped = true;
+		}else{
+			this.flipped = false;
+		}
+
 		if(this.flipped){
 				img.style.opacity = "1.0";
 		}else{
 			img.style.opacity = "0";
 		}
 
-		if(this.selected){
-			element.style.outline = "1px solid green";
-		}else if(this.matched){
-			element.style.outline = "1px solid gold";
+		if(this.matched){
+			element.style.outline = "3px solid green";
+		}else if(this.selected){
+			element.style.outline = "3px solid gold";
 		}else{
 			element.style.outline = "";
 		}
@@ -43,6 +50,8 @@ function card(name, pos = null){
 
 
 	}
+
+
 	this.pos = function(row = this.row, col = this.col){
 		this.row = row;
 		this.col = col;
@@ -51,14 +60,15 @@ function card(name, pos = null){
 	}
 
 	this.testMatch = function (card){
-		
+		// this.selected = false;
+		// card.selected = false;
 		if(this.name == card.name){
 			this.matched = true;
 			card.matched = true;
+			
 			return true;
 		}
-		this.selected = false;
-		card.selected = false;
+		
 		return false;
 	}
 
@@ -67,17 +77,19 @@ function card(name, pos = null){
 
 }
 
-function game(rows = 3, cols = 4){
-	this.rows = rows;
-	this.cols = cols;
+function game(matchMultiplier = 4, maxMatches = 6){
 	this.cards = [];
 	this.cardsSelected = [];
 	this.guesses = 0;
 	this.matches = 0;
 	this.timer = 0;
-	this.maxMatches;
+	
+	this.matchChain = false;
+	this.maxMatches = maxMatches;
 	this.scorebox = new scorebox(this);
 	this.state = "prematch";
+	this.matchMultiplier = Math.max(matchMultiplier, 2);
+	this.currentTimeout
 
 	this.render = function (){
 		for(let i = 0; i < this.rows; i++){
@@ -90,45 +102,108 @@ function game(rows = 3, cols = 4){
 
 	}
 
+	this.clearSelection = function(){
+		this.cardsSelected.forEach(card => {
+			card.selected = false;
+			card.render();
+		});
+
+		this.cardsSelected = [];
+
+		this.render();
+	
+	}
+
+	this.testMatchChain = function (cards){
+		let first = cards.length-1;
+		let name = cards[first].name
+ 
+
+		for (let i = 0; i < cards.length; i++) {
+			const card = cards[i];
+			if(name!=card.name){
+				console.log(card.name);
+				this.guesses++;
+
+				return false;
+			}
+		}
+
+		
+		
+		return true;
+	}
+
 	this.select = function(card){
+		if(!this.matchChain){
+			this.clearSelection();
+		}
+		clearTimeout(this.currentTimeout);
 		let message = "";
+		
 		if(this.state == "prematch"){
 			this.scorebox.startTimer();
 			this.state = "started";
 		}
 
 
-		if(!card.matched || !card.selected){
+		if(!(card.selected || card.matched)){
 			this.cardsSelected.push(card);
 			message += card.name + " Was Selected\n";
 			card.selected = true;
+			console.log(this.cardsSelected);
+			 this.currentTimeout = setTimeout(function(game){
+				game.cardsSelected.forEach(card => {
+					card.selected = false;
+					card.render();
+				});
+		
+				game.cardsSelected = [];
+		
+				game.render();
+			
+			}, 5000, this);
+			console.log(this.cardsSelected);
 			card.flipped = true;
 		}
 
-		if(this.cardsSelected.length == 2){
-			this.guesses++;
-			let c1 = this.cardsSelected[0];
-			let c2 = this.cardsSelected[1];
+		this.matchChain = this.testMatchChain(this.cardsSelected);
 
-			if(c1.testMatch(c2)){
-				this.matches++;
-			}
+		console.log(this.matchChain);
+		if(this.matchChain && (this.cardsSelected.length == this.matchMultiplier)){
+			this.cardsSelected.forEach(card => {
+				card.matched = true;
+			});
+			this.matches++;
+			this.matchChain = false;
+			this.currentTimeout = setTimeout(function(game){
+				game.cardsSelected.forEach(card => {
+					card.selected = false;
+					card.render();
+				});
+		
+				game.cardsSelected = [];
+		
+				game.render();
+			
+			}, 5000, this);
+
 		}
 
 		
-		if(this.cardsSelected.length == 3){
-			let c1 = this.cardsSelected[0];
-			let c2 = this.cardsSelected[1];
-			if(!c1.matched){
-				c1.flipped = false;
-			}
-			if(!c2.matched){
-				c2.flipped = false;
-			}
+		// if(this.cardsSelected.length == 3){
+		// 	let c1 = this.cardsSelected[0];
+		// 	let c2 = this.cardsSelected[1];
+		// 	if(!c1.matched){
+		// 		c1.selected = false;
+		// 	}
+		// 	if(!c2.matched){
+		// 		c2.selected = false;
+		// 	}
 
-			this.cardsSelected.shift();
-			this.cardsSelected.shift();
-		}
+		// 	this.cardsSelected.shift();
+		// 	this.cardsSelected.shift();
+		// }
 
 		if(this.matches == this.maxMatches){
 			this.scorebox.stopTimer();
@@ -138,17 +213,35 @@ function game(rows = 3, cols = 4){
 	
 	} 
 
+	
+
 	this.init = function(){
+		let matchMultiplier = this.matchMultiplier;
+		let maxMatches = this.maxMatches;
+		this.rows = Math.min(matchMultiplier, maxMatches);
+		this.cols = Math.max(matchMultiplier, maxMatches);
 		let names = [];
 		let cardMax = function (grid){
 
+			let maxMax = allNames.length * grid.matchMultiplier;
 			let i = grid.rows * grid.cols;
 
-			while(i % 2 != 0){
+
+			while(i % grid.matchMultiplier != 0){
+				//console.log(grid.rows + " " + grid.)
 				if(grid.rows > grid.cols){
-					grid.rows--;
+					if(i*2 < maxMax){
+						grid.cols++;
+					}else{
+						grid.rows--;
+					}
+					
 				}else{
-					grid.cols--;
+					if(i*2 < maxMax){
+						grid.rows++;
+					}else{
+						grid.cols--;
+					}
 				}
 				i = grid.rows * grid.cols;
 			}
@@ -159,7 +252,7 @@ function game(rows = 3, cols = 4){
 
 
 		this.cardMax = cardMax(this);
-		this.maxMatches = this.cardMax/2;
+		this.maxMatches = this.cardMax/this.matchMultiplier;
 		console.log(this.maxMatches);
 		while(names.length < this.maxMatches){
 			let randPos = Math.floor(Math.random() * allNames.length);
@@ -179,9 +272,12 @@ function game(rows = 3, cols = 4){
 
 
 
-		for (var i = names.length - 1; i >= 0; i--) {
-			this.cards.push(new card(names[i]));
-			this.cards.push(new card(names[i]));
+		for (let i = names.length - 1; i >= 0; i--) {
+			for(let j = 0; j < this.matchMultiplier; j++){
+				this.cards.push(new card(names[i]));
+			}
+			
+			
 
 		}
 
@@ -251,8 +347,8 @@ function game(rows = 3, cols = 4){
 }
 function scoreboard(){
 	this.games = [];
-	this.matches;
-	this.guesses;
+	this.matches = document.createElement("div");
+	this.guesses = document.createElement("div");
 	this.timer;
 
 	this.gamelist = document.createElement("div");
@@ -290,14 +386,18 @@ function scoreboard(){
 		right.innerHTML = "";
 		right.appendChild(div); 
 
+		
+
+	}
+
 	this.render = function(){
-		let game = games[0];
+		let game = this.games[0];
 		if(!game){
 			return;
 		}
 		this.matches.innerHTML = game.matches + "/" + game.maxMatches + "  Matches"; 
 		this.guesses.innerHTML = game.guesses + " Guesses";
-	}
+		}
 
 	this.addGame = function (game){
 		let games = this.games;
@@ -320,10 +420,18 @@ function scoreboard(){
 		this.render();
 	}
 
-	}
-
 } 
 
+function gameSettingsBar(){
+	this.button = document.createElement("button");
+	this.matchMultiplier = document.createElement("input");
+	this.matchMax = document.createElement("input");
+	
+	this.init = function (){
+		
+	}
+
+}
 
 function scorebox(game){
 	this.box = document.createElement("div");
@@ -353,6 +461,7 @@ function scorebox(game){
 	this.render	= function (){
 		let matches = this.matches;
 		let guesses = this.guesses;
+		console.log("Guesses " + game.guesses);
 		matches.innerHTML = game.matches + "/" + game.maxMatches + "  Matches"; 
 		guesses.innerHTML = game.guesses + " Guesses";
 		
@@ -384,7 +493,7 @@ function scorebox(game){
 
 
 
-
+//Fisher Yates
 function shuffle(arr){
 	for (i = arr.length -1; i > 0; i--) {
 		  j = Math.floor(Math.random() * i)
@@ -403,7 +512,9 @@ var sb = new scoreboard();
 
 function newGame(){
 	var newG = new game();
+	
 	sb.addGame(newG)
+	return newG;
 }
 
 
