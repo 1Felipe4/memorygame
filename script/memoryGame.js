@@ -370,17 +370,17 @@ function scoreboard(){
 	this.init = function (){
 		let div = document.createElement("div");
 		div.style.margin = "10% 0";
-		div.style.display = "grid";
-		div.style.gridTemplateColumns=  "50% 50%";
-		div.style.gridTemplateRows = "auto 40% 40%";
-		div.style.gridTemplateAreas = '"header header" "games leastGuesses"  "games fastest"';
+		//div.style.display = "grid";
+		//div.style.gridTemplateColumns=  "50% 50%";
+		//div.style.gridTemplateRows = "auto 40% 40%";
+		//div.style.gridTemplateAreas = '"header header" "games leastGuesses"  "games fastest"';
 
 
 		let header = document.createElement("h1");
 		header.style.margin = "0 auto"
 		header.style.gridArea = "header";
 		header.innerHTML = "<u>Scoreboard</u>";
-		header.style.padding = "5%"
+		header.style.padding = "1.5em 0"
 		let fastest = this.fastest;
 		fastest.style.gridArea = "fastest";
 
