@@ -17,8 +17,8 @@
 
 main {
 	display: grid;
-	grid-template-columns: 10vw  66vw auto;
-	grid-column-gap: 3vw;
+	grid-template-columns: 30vw  auto;
+	grid-column-gap: 2vw;
 }
 
 h2{

@@ -77,18 +77,19 @@ function card(name, pos = null){
 
 }
 
-function game(matchMultiplier = 4, maxMatches = 6){
+function game(gamemode = new gameMode("Easy", 2, 6)){
 	this.cards = [];
 	this.cardsSelected = [];
 	this.guesses = 0;
 	this.matches = 0;
 	this.timer = 0;
+	this.gamemode = gamemode;
 	
 	this.matchChain = false;
-	this.maxMatches = maxMatches;
+	this.maxMatches = gamemode.maxMatches;
 	this.scorebox = new scorebox(this);
 	this.state = "prematch";
-	this.matchMultiplier = Math.max(matchMultiplier, 2);
+	this.matchMultiplier = Math.max(gamemode.matchMultiplier, 2);
 	this.currentTimeout
 
 	this.render = function (){
@@ -310,6 +311,11 @@ function game(matchMultiplier = 4, maxMatches = 6){
 		setTable(this);
 		
 		document.getElementById("game").innerHTML = "";
+		let div = document.createElement("div");
+		let header = document.createElement("h3");
+		header.style.textAlign = "center"
+		div.appendChild(header)
+		header.innerHTML = this.gamemode.name;
 		for(let i = 0; i < this.rows; i++){
 			let section = document.createElement("section");
 			section.style.display = "grid";
@@ -330,10 +336,10 @@ function game(matchMultiplier = 4, maxMatches = 6){
 			
 
 			section.style.gridTemplateColumns = gridTemplate;
-			document.getElementById("game").appendChild(section);
+			div.appendChild(section);
 		}
 
-
+		document.getElementById("game").appendChild(div)
 
 	}
 
@@ -363,6 +369,7 @@ function scoreboard(){
 
 	this.init = function (){
 		let div = document.createElement("div");
+		div.style.margin = "10% 0";
 		div.style.display = "grid";
 		div.style.gridTemplateColumns=  "50% 50%";
 		div.style.gridTemplateRows = "auto 40% 40%";
@@ -373,7 +380,7 @@ function scoreboard(){
 		header.style.margin = "0 auto"
 		header.style.gridArea = "header";
 		header.innerHTML = "<u>Scoreboard</u>";
-
+		header.style.padding = "5%"
 		let fastest = this.fastest;
 		fastest.style.gridArea = "fastest";
 
@@ -496,7 +503,9 @@ function gameSettingsBar(){
 
 		let newGameBtn = document.createElement("button");
 		newGameBtn.innerHTML = "New Game";
-		newGameBtn.addEventListener("click", () => newGame(matchMultiplier.value, maxMatches.value));
+
+
+		newGameBtn.addEventListener("click", () => newGame(settings.gameModes[settings.modeKeys[settings.modeI]]));
 
 		let header = document.createElement("h4");
 		header.innerHTML = "Game Options";
@@ -572,6 +581,7 @@ function scorebox(game){
 	this.box = document.createElement("div");
 	this.matches = document.createElement("h5");
 	this.guesses = document.createElement("h5");
+	this.matchMultiplier = document.createElement("h5");
 	this.time = document.createElement("h6");
 	this.timer = null;
 	this.game = game;
@@ -579,23 +589,33 @@ function scorebox(game){
 	this.init= function (){
 		let matches = this.matches;
 		let guesses = this.guesses;
+
 		let time = this.time;
 		let box = this.box;
 		let game = this.game;
+		let matchMultiplier = this.matchMultiplier;
+		let gamemode = document.createElement("h5");
+		gamemode.innerHTML = "Game Mode: " + game.gamemode.name;
 		box.style.border = "1px solid cyan";
 		box.style.padding = "5px";
 		box.innerHTML = "";
 		matches.innerHTML = game.matches + "/" + game.maxMatches + "  Matches"; 
 		guesses.innerHTML = game.guesses + " Guesses";
+		matchMultiplier.innerHTML =  game.gamemode.matchMultiplier + " Cards per Match" ;
 		this.time.innerHTML = 0 + " Seconds";
+
+		box.appendChild(gamemode)
 		box.appendChild(guesses);
 		box.appendChild(matches);
+		box.appendChild(matchMultiplier);
 		box.appendChild(time);
+		
 		};
 
 	this.render	= function (){
 		let matches = this.matches;
 		let guesses = this.guesses;
+
 		console.log("Guesses " + game.guesses);
 		matches.innerHTML = game.matches + "/" + game.maxMatches + "  Matches"; 
 		guesses.innerHTML = game.guesses + " Guesses";
@@ -610,7 +630,12 @@ function scorebox(game){
 			let secs =  (now - start) / 1000;
 			secs = parseInt(secs)
 			//let milli =  (now - start) % 1000;
-			time.innerHTML = secs + " Seconds";
+			mins = parseInt(secs/60);
+			secs%=60;
+			if(secs<10){
+				secs = "0"+secs;
+			}
+			time.innerHTML = mins +  ":" + secs + " minutes";
 
 		 }, 500, start.getTime(), this.time)
 	}
@@ -641,8 +666,8 @@ function shuffle(arr){
 }
 
 var sb = new scoreboard();
-function newGame(matchMultiplier = 4, maxMatches = 6){
-	var newG = new game(matchMultiplier, maxMatches);
+function newGame(gamemode = new gameMode("Easy", 2, 6)){
+	var newG = new game(gamemode);
 	
 	sb.addGame(newG)
 	return newG;
