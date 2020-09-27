@@ -28,3 +28,7 @@ h2{
 label{
 	display: block;
 }
+
+input, button{
+	width: 100%;
+}
