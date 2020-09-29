@@ -13,13 +13,19 @@ function card(name, pos = null){
 		element.setAttribute("class", "card");
 		element.style.backgroundColor = "cyan";
 		element.style.margin = "2px";
-		element.style.padding = "5px";
+		//element.style.padding = "5px";
 		let img = this.img;
-		img.setAttribute("src", "images/"+ name + ".png");
+		img.setAttribute("src", "images/mystery.png");
 				
 		img.style.width = "80%";
 		element.appendChild(img);	
-		element.style.textAlign = "ce nter";
+		element.style.textAlign = "center";
+		element.style.borderRadius = "3em";
+		element.style.width = "10em";
+		element.style.height = "12em";
+		element.style.padding = ".5em";
+		img.style.opacity = "1";
+
 	}
 
 	this.render = function(){
@@ -33,9 +39,9 @@ function card(name, pos = null){
 		}
 
 		if(this.flipped){
-				img.style.opacity = "1.0";
+			img.setAttribute("src", "images/"+ name + ".png");
 		}else{
-			img.style.opacity = "0";
+			img.setAttribute("src", "images/mystery.png");
 		}
 
 		if(this.matched){
