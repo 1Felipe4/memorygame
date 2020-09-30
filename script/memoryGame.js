@@ -13,17 +13,14 @@ function card(name, pos = null){
 		element.setAttribute("class", "card");
 		element.style.backgroundColor = "cyan";
 		element.style.margin = "2px";
-		//element.style.padding = "5px";
+		element.style.padding = "5px";
 		let img = this.img;
 		img.setAttribute("src", "images/mystery.png");
 				
 		img.style.width = "80%";
 		element.appendChild(img);	
 		element.style.textAlign = "center";
-		element.style.borderRadius = "3em";
-		element.style.width = "10em";
-		element.style.height = "12em";
-		element.style.padding = ".5em";
+		element.style.borderRadius = "1em";
 		img.style.opacity = "1";
 
 	}
@@ -322,13 +319,17 @@ function game(gamemode = new gameMode("Easy", 2, 6)){
 		header.style.textAlign = "center"
 		div.appendChild(header)
 		header.innerHTML = this.gamemode.name;
+		let section = document.createElement("section");
+		section.style.display = "grid";
+		let gridTemplateCol = "";
+		let gridTemplateRows = "";
 		for(let i = 0; i < this.rows; i++){
-			let section = document.createElement("section");
-			section.style.display = "grid";
-			let gridTemplate = "";
+			gridTemplateCol = "";
+			
+			
 			for(let j = 0; j < this.cols; j++){
 				let card = this.table[i][j];
-				gridTemplate += 100.00/ this.cols + "% ";
+				gridTemplateCol += 100.00/ this.cols - 4 + "% ";
 				card.render();
 				card.element.addEventListener("click", () => this.select(card));
 				section.appendChild(card.element);
@@ -337,14 +338,20 @@ function game(gamemode = new gameMode("Easy", 2, 6)){
 			}
 			this.scorebox.render();
 
-
+			gridTemplateRows += 100.00/ this.rows - 4 + "% ";
 
 			
 
-			section.style.gridTemplateColumns = gridTemplate;
-			div.appendChild(section);
+			
 		}
 
+		console.log(gridTemplateRows);
+
+		section.style.gridTemplateColumns = gridTemplateCol;
+		section.style.gridTemplateRows = gridTemplateRows;
+		section.style.gridGap = "2%";
+
+		div.appendChild(section);
 		document.getElementById("game").appendChild(div)
 
 	}
