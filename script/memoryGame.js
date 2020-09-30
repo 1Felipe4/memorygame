@@ -236,38 +236,66 @@ function game(gamemode = new gameMode("Easy", 2, 6)){
 	this.init = function(){
 		let matchMultiplier = this.matchMultiplier;
 		let maxMatches = this.maxMatches;
-		this.rows = Math.min(matchMultiplier, maxMatches);
 		this.cols = Math.max(matchMultiplier, maxMatches);
+		this.rows = Math.min(matchMultiplier, maxMatches);
 		let names = [];
 		let cardMax = function (grid){
-
-			let maxMax = allNames.length * grid.matchMultiplier;
-			
-			while(grid.rows*2 < grid.cols){
-				grid.rows++;
-				grid.cols--;
+			let max =  grid.cols;
+			if(grid.cols%grid.rows == 0){
+				console.log()
+				grid.cols = grid.cols / grid.rows;
+				grid.rows = (max * grid.rows) / grid.cols;
 			}
+			let temp = Math.max(grid.cols, grid.rows);
+			if(window.screen.height> window.screen.width){
+				grid.cols = Math.min(grid.cols, grid.rows);
+				grid.rows = temp;
+			}else{
+				grid.rows = Math.min(grid.cols, grid.rows);
+				grid.cols = temp;
+			}
+			
+			
+
+			if(grid.cols > max){
+				grid.cols = Math.max(matchMultiplier, maxMatches);
+				grid.rows = Math.min(matchMultiplier, maxMatches);
+			}
+			
+			let maxMax = allNames.length * grid.matchMultiplier;
+
+			
+			// while(grid.rows< grid.cols){
+				
+			// 	grid.cols--;
+			// 	grid.rows++;
+			// 	console.log(grid.rows +  " " + grid.cols);
+			// }
+
+			
 
 			let i = grid.rows * grid.cols;
-
-
-			while(i % grid.matchMultiplier != 0){
-				if(grid.rows > grid.cols){
-					if(i*2 < maxMax){
-						grid.cols++;
-					}else{
-						grid.rows--;
-					}
+			console.log(grid.rows +  " " + grid.cols + " " + i);
+			
+			// while(i % grid.matchMultiplier != 0){
+			// 	if(grid.rows > grid.cols){
+			// 		if(i*2 < maxMax){
+			// 			grid.cols++;
+			// 		}else{
+			// 			grid.rows--;
+			// 		}
 					
-				}else{
-					if(i*2 < maxMax){
-						grid.rows++;
-					}else{
-						grid.cols--;
-					}
-				}
-				i = grid.rows * grid.cols;
-			}
+			// 	}else{
+			// 		if(i*2 < maxMax){
+			// 			grid.rows++;
+			// 		}else{
+			// 			grid.cols--;
+			// 		}
+			// 	}
+				
+			// 	i = grid.rows * grid.cols;
+			// 	console.log(grid.rows +  " " + grid.cols + " " + i);
+			// }
 
 			return i;
 		}
@@ -507,12 +535,14 @@ function gameSettingsBar(){
 
 		maxMatches.setAttribute("type", "number");
 		maxMatches.setAttribute("min", "2");
+		maxMatches.setAttribute("max", allNames.length + "");
 		maxMatches.style.gridArea = "maxMatchInput";
 
 
 
 		matchMultiplier.setAttribute("type", "number");
 		matchMultiplier.setAttribute("min", "2");
+		matchMultiplier.setAttribute("max", "12");
 		matchMultiplier.style.gridArea = "matchMulInput";
 
 		mode.style.gridArea = "modeBtn";
@@ -705,7 +735,12 @@ function init(){
 
 	
 
-
+function gcd(a, b){
+	if (a == 0) 
+	return b; 
+  
+return gcd(b % a, a); 
+}
 
 
 
