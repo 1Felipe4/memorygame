@@ -15,7 +15,7 @@
 
 main {
 	display: grid;
-	grid-template-columns: 30vw  auto;
+	grid-template-columns: 20vw  auto;
 	grid-column-gap: 2vw;
 }
 

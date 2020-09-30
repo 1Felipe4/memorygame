@@ -7,7 +7,9 @@ function card(name, pos = null){
 	this.flipped = false;
 	this.matched = false;
 	this.selected = false;
+	this.badMatch = false;
 	this.element = document.createElement("div");
+
 	this.init = function(){
 		let element = this.element
 		element.setAttribute("class", "card");
@@ -23,12 +25,22 @@ function card(name, pos = null){
 		element.style.borderRadius = "1em";
 		img.style.opacity = "1";
 
+	
+	
+	}
+
+	this.changeState = function (state){
+		console.log(state)
+		if(this.state != "Matched"){
+			this.state = state;
+		}
+
 	}
 
 	this.render = function(){
 		let element = this.element
 		let img = this.img;
-		console.log(this.matched + " " + this.selected);
+		
 		if((this.matched || this.selected)){
 			this.flipped = true;
 		}else{
@@ -41,16 +53,38 @@ function card(name, pos = null){
 			img.setAttribute("src", "images/mystery.png");
 		}
 
+
 		if(this.matched){
 			element.style.outline = "3px solid green";
 		}else if(this.selected){
 			element.style.outline = "3px solid gold";
-		}else{
+		}else if(this.badMatch){
+			element.style.outline = "3px solid red";
+		}
+		else{
 			element.style.outline = "";
 		}
 
+		switch (this.state.toLowerCase()) {
+			case "matched":
+				element.style.outline = "3px solid green";
+				break;
+			case "selected":
+				element.style.outline = "3px solid gold";
+				break;
+			case "bad select":
+				element.style.outline = "3px solid red";
+				break;		
+			case "turned down":
+				
+				break;	
+		
+			default:
+				console.log("switch failed")
+				break;
+		}
 
-
+		this.badMatch = false;
 
 	}
 
@@ -63,11 +97,10 @@ function card(name, pos = null){
 	}
 
 	this.testMatch = function (card){
-		// this.selected = false;
-		// card.selected = false;
 		if(this.name == card.name){
 			this.matched = true;
 			card.matched = true;
+
 			
 			return true;
 		}
@@ -109,6 +142,7 @@ function game(gamemode = new gameMode("Easy", 2, 6)){
 	this.clearSelection = function(){
 		this.cardsSelected.forEach(card => {
 			card.selected = false;
+			card.changeState("Turned Down");
 			card.render();
 		});
 
@@ -126,7 +160,6 @@ function game(gamemode = new gameMode("Easy", 2, 6)){
 		for (let i = 0; i < cards.length; i++) {
 			const card = cards[i];
 			if(name!=card.name){
-				console.log(card.name);
 				this.guesses++;
 
 				return false;
@@ -139,10 +172,11 @@ function game(gamemode = new gameMode("Easy", 2, 6)){
 	}
 
 	this.select = function(card){
+		console.log(card.name + " " + card.state);
 		if(!this.matchChain){
 			this.clearSelection();
 		}
-		clearTimeout(this.currentTimeout);
+		
 		let message = "";
 		
 		if(this.state == "prematch"){
@@ -152,14 +186,18 @@ function game(gamemode = new gameMode("Easy", 2, 6)){
 
 
 		if(!(card.selected || card.matched)){
+			clearTimeout(this.currentTimeout);
+
 			this.cardsSelected.push(card);
 			message += card.name + " Was Selected\n";
 			card.selected = true;
-			console.log(this.cardsSelected);
+			card.changeState("Selected");
 			 this.currentTimeout = setTimeout(function(game){
 				game.cardsSelected.forEach(card => {
 					card.selected = false;
+					card.changeState("Turned Down");
 					card.render();
+					console.log(card.name + " " + card.state);
 				});
 		
 				game.cardsSelected = [];
@@ -167,22 +205,26 @@ function game(gamemode = new gameMode("Easy", 2, 6)){
 				game.render();
 			
 			}, 5000, this);
-			console.log(this.cardsSelected);
 			card.flipped = true;
+			
 		}
 
 		this.matchChain = this.testMatchChain(this.cardsSelected);
 
-		console.log(this.matchChain);
 		if(this.matchChain && (this.cardsSelected.length == this.matchMultiplier)){
+			clearTimeout(this.currentTimeout);
 			this.cardsSelected.forEach(card => {
 				card.matched = true;
+				card.changeState("Matched");
 			});
 			this.matches++;
 			this.matchChain = false;
 			this.currentTimeout = setTimeout(function(game){
 				game.cardsSelected.forEach(card => {
 					card.selected = false;
+					card.changeState("Turned Down");
+
+					
 					card.render();
 				});
 		
@@ -194,27 +236,20 @@ function game(gamemode = new gameMode("Easy", 2, 6)){
 
 		}
 
-		
-		// if(this.cardsSelected.length == 3){
-		// 	let c1 = this.cardsSelected[0];
-		// 	let c2 = this.cardsSelected[1];
-		// 	if(!c1.matched){
-		// 		c1.selected = false;
-		// 	}
-		// 	if(!c2.matched){
-		// 		c2.selected = false;
-		// 	}
-
-		// 	this.cardsSelected.shift();
-		// 	this.cardsSelected.shift();
-		// }
+		if(!this.matchChain){
+			this.cardsSelected.forEach(card => {
+				card.changeState("Bad Select");
+				card.render();
+			});
+		}
+	
 
 		if(this.matches == this.maxMatches){
 			this.scorebox.stopTimer();
 			this.state = "won";
 		}
 		this.render();
-	
+		console.log(card.name + " " + card.state);
 	} 
 
 	
@@ -238,7 +273,6 @@ function game(gamemode = new gameMode("Easy", 2, 6)){
 
 
 			while(i % grid.matchMultiplier != 0){
-				//console.log(grid.rows + " " + grid.)
 				if(grid.rows > grid.cols){
 					if(i*2 < maxMax){
 						grid.cols++;
@@ -263,7 +297,6 @@ function game(gamemode = new gameMode("Easy", 2, 6)){
 
 		this.cardMax = cardMax(this);
 		this.maxMatches = this.cardMax/this.matchMultiplier;
-		console.log(this.maxMatches);
 		while(names.length < this.maxMatches){
 			let randPos = Math.floor(Math.random() * allNames.length);
 			if(!names.includes(allNames[randPos])){
@@ -345,7 +378,6 @@ function game(gamemode = new gameMode("Easy", 2, 6)){
 			
 		}
 
-		console.log(gridTemplateRows);
 
 		section.style.gridTemplateColumns = gridTemplateCol;
 		section.style.gridTemplateRows = gridTemplateRows;
@@ -388,12 +420,13 @@ function scoreboard(){
 		//div.style.gridTemplateRows = "auto 40% 40%";
 		//div.style.gridTemplateAreas = '"header header" "games leastGuesses"  "games fastest"';
 
-
+		div.style.fontSize = ".8em";
 		let header = document.createElement("h1");
+		header.style.fontSize = ".8em";
 		header.style.margin = "0 auto"
 		header.style.gridArea = "header";
 		header.innerHTML = "<u>Scoreboard</u>";
-		header.style.padding = "1.5em 0"
+		header.style.padding = ".2em 0"
 		let fastest = this.fastest;
 		fastest.style.gridArea = "fastest";
 
@@ -436,7 +469,7 @@ function scoreboard(){
 			games.pop();
 		}
 		let firstChild = gamelist.firstChild;
-		console.log(firstChild);
+
 		if(firstChild){
 			gamelist.insertBefore(score.box, firstChild);
 		}else{
@@ -476,9 +509,9 @@ function gameSettingsBar(){
 		this.gameModes["Custom"] = new gameMode("Custom", 2, 8);
 
 		this.modeKeys = Object.keys(this.gameModes);
-		console.log(this.modeKeys);
+
 		let div = document.createElement("div");
-		
+		div.style.fontSize = ".8em"
 
 		let mode = this.mode;
 		let settings = this;
@@ -629,7 +662,6 @@ function scorebox(game){
 		let matches = this.matches;
 		let guesses = this.guesses;
 
-		console.log("Guesses " + game.guesses);
 		matches.innerHTML = game.matches + "/" + game.maxMatches + "  Matches"; 
 		guesses.innerHTML = game.guesses + " Guesses";
 		
