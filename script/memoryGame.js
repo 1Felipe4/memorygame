@@ -5,9 +5,6 @@ function card(name, pos = null){
 	this.img = document.createElement("img");
 	this.state = "Turned Down";
 	this.flipped = false;
-	this.matched = false;
-	this.selected = false;
-	this.badMatch = false;
 	this.element = document.createElement("div");
 
 	this.init = function(){
@@ -40,31 +37,8 @@ function card(name, pos = null){
 	this.render = function(){
 		let element = this.element
 		let img = this.img;
-		
-		if((this.matched || this.selected)){
-			this.flipped = true;
-		}else{
-			this.flipped = false;
-		}
-
-		if(this.flipped){
-			img.setAttribute("src", "images/"+ name + ".png");
-		}else{
-			img.setAttribute("src", "images/mystery.png");
-		}
-
-
-		if(this.matched){
-			element.style.outline = "3px solid green";
-		}else if(this.selected){
-			element.style.outline = "3px solid gold";
-		}else if(this.badMatch){
-			element.style.outline = "3px solid red";
-		}
-		else{
-			element.style.outline = "";
-		}
-
+		this.flipped = true;
+	
 		switch (this.state.toLowerCase()) {
 			case "matched":
 				element.style.outline = "3px solid green";
@@ -76,16 +50,21 @@ function card(name, pos = null){
 				element.style.outline = "3px solid red";
 				break;		
 			case "turned down":
-				
+				this.flipped = false;
+				element.style.outline = "";
 				break;	
 		
 			default:
+				element.style.outline = "";
 				console.log("switch failed")
 				break;
 		}
 
-		this.badMatch = false;
-
+		if(this.flipped){
+			img.setAttribute("src", "images/"+ name + ".png");
+		}else{
+			img.setAttribute("src", "images/mystery.png");
+		}
 	}
 
 
@@ -415,11 +394,6 @@ function scoreboard(){
 	this.init = function (){
 		let div = document.createElement("div");
 		div.style.margin = "10% 0";
-		//div.style.display = "grid";
-		//div.style.gridTemplateColumns=  "50% 50%";
-		//div.style.gridTemplateRows = "auto 40% 40%";
-		//div.style.gridTemplateAreas = '"header header" "games leastGuesses"  "games fastest"';
-
 		div.style.fontSize = ".8em";
 		let header = document.createElement("h1");
 		header.style.fontSize = ".8em";
@@ -680,7 +654,7 @@ function scorebox(game){
 			if(secs<10){
 				secs = "0"+secs;
 			}
-			time.innerHTML = mins +  ":" + secs + " minutes";
+			time.innerHTML = mins +  ":" + secs;
 
 		 }, 500, start.getTime(), this.time)
 	}
