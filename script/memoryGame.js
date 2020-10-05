@@ -9,6 +9,7 @@ function card(name, pos = null){
 
 	this.init = function(){
 		let element = this.element
+		
 		element.setAttribute("class", "card");
 		element.style.backgroundColor = "cyan";
 		element.style.margin = "2px";
@@ -143,10 +144,7 @@ function game(gamemode = new gameMode("Easy", 2, 6)){
 
 				return false;
 			}
-		}
-
-		
-		
+		}	
 		return true;
 	}
 
@@ -263,39 +261,9 @@ function game(gamemode = new gameMode("Easy", 2, 6)){
 			}
 			
 			let maxMax = allNames.length * grid.matchMultiplier;
-
 			
-			// while(grid.rows< grid.cols){
-				
-			// 	grid.cols--;
-			// 	grid.rows++;
-			// 	console.log(grid.rows +  " " + grid.cols);
-			// }
-
-			
-
 			let i = grid.rows * grid.cols;
 			console.log(grid.rows +  " " + grid.cols + " " + i);
-			
-			// while(i % grid.matchMultiplier != 0){
-			// 	if(grid.rows > grid.cols){
-			// 		if(i*2 < maxMax){
-			// 			grid.cols++;
-			// 		}else{
-			// 			grid.rows--;
-			// 		}
-					
-			// 	}else{
-			// 		if(i*2 < maxMax){
-			// 			grid.rows++;
-			// 		}else{
-			// 			grid.cols--;
-			// 		}
-			// 	}
-				
-			// 	i = grid.rows * grid.cols;
-			// 	console.log(grid.rows +  " " + grid.cols + " " + i);
-			// }
 
 			return i;
 		}
@@ -365,15 +333,13 @@ function game(gamemode = new gameMode("Easy", 2, 6)){
 		let gridTemplateRows = "";
 		for(let i = 0; i < this.rows; i++){
 			gridTemplateCol = "";
-			
-			
 			for(let j = 0; j < this.cols; j++){
 				let card = this.table[i][j];
 				gridTemplateCol += 100.00/ this.cols - 4 + "% ";
 				card.render();
 				card.element.addEventListener("click", () => this.select(card));
 				section.appendChild(card.element);
-
+				
 
 			}
 			this.scorebox.render();
@@ -387,22 +353,13 @@ function game(gamemode = new gameMode("Easy", 2, 6)){
 
 
 		section.style.gridTemplateColumns = gridTemplateCol;
-		section.style.gridTemplateRows = gridTemplateRows;
+		//section.style.gridTemplateRows = gridTemplateRows;
 		section.style.gridGap = "2%";
 
 		div.appendChild(section);
 		document.getElementById("game").appendChild(div)
 
 	}
-
-			// let scores = document.createElement("div");
-			// let guesses = document.createElement("h2");
-			// guesses.innerHTML = this.guesses;
-			// scores.appendChild(guesses);
-			// let timer = document.createElement("h2");
-			// document.getElementById("rightSide").appendChild(scores);
-
-
 
 	this.init();
 	
